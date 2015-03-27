@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+      html, body, #map-canvas { height: 90%; margin: 0; padding: 0;}
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js">
+    </script>
+    <script type="text/javascript">
+
+      zoomlevel = 20;
+      latitud = 59.329323;
+      lngcurr = 18.068581
+      function initialize() {
+        var mapOptions = {
+          center: { lat: latitud , lng: lngcurr},
+          zoom: zoomlevel,
+          mapTypeId: google.maps.MapTypeId.HYBRID,
+          heading: 90,
+          tilt: 45,
+          disableDefaultUI: true
+
+        };
+        var map = new google.maps.Map(document.getElementById('map-canvas'),
+            mapOptions);
+      }
+      
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+<div id="map-canvas"></div>
+
+<button onclick="setZoom(1)">+</button>
+<button onclick="setZoom(-1)">-</button>
+
+
+  </body>
+</html>
