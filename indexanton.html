@@ -3,13 +3,17 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     	<meta charset="utf-8">
+    	<meta name="mobile-web-app-capable" content="yes"> <!-- Fixar fullscreen-->
+    	<meta name="theme-color" content="#53A6DC"> <!-- Fixar annan färg på status bar-->
+    	<link rel="apple-touch-startup-image" href="http://s649.photobucket.com/user/santod_photos/media/Androidonapple.jpg.html?t=1259524013" sizes="480x800" />
     	<title>Mappelimaparama!</title>
+    	<link rel="icon" sizes="192x192" href="http://fs01.androidpit.info/a/ad/45/vintage-icon-pack-ad45fc-w192.png"> <!-- vilken ikon som är desktopikon när man laddar ned sidan som app-->
     	<style type="text/css">
       		html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
     	</style>
     	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
     	<script>
-		function newControl(controlDiv, map, text, doFunction) {
+		function newControl(controlDiv, map, text, doFunction) { //Funktion för diverse kontrollknappar.
 
 		  // Set CSS for the control border
 		  var controlUI = document.createElement('div');
