@@ -1,18 +1,20 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html>
 	<head>
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
     	<meta charset="utf-8">
     	<meta name="mobile-web-app-capable" content="yes"> <!-- Fixar fullscreen-->
-    	<meta name="theme-color" content="#53A6DC"> <!-- Fixar annan färg på status bar-->
-    	<link rel="apple-touch-startup-image" href="http://s649.photobucket.com/user/santod_photos/media/Androidonapple.jpg.html?t=1259524013" sizes="480x800" />
-    	<title>Mappelimaparama!</title>
-    	<link rel="icon" sizes="192x192" href="http://fs01.androidpit.info/a/ad/45/vintage-icon-pack-ad45fc-w192.png"> <!-- vilken ikon som är desktopikon när man laddar ned sidan som app-->
+    	<link rel="icon" sizes="196x196" href="ikon.png"/>
+  		<meta name="theme-color" content="#FFBF53"> <!-- Fixar annan färg på status bar -->
+    	<!-- <link rel="apple-touch-startup-image" href="http://s649.photobucket.com/user/santod_photos/media/Androidonapple.jpg.html?t=1259524013" sizes="480x800" /> -->
+    	<title>Map-app!</title>
+    	<!-- <link rel="icon" sizes="192x192" href="ikon.png">  vilken ikon som är desktopikon när man laddar ned sidan som app -->
     	<style type="text/css">
       		html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
     	</style>
     	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
     	<script>
+
 		function newControl(controlDiv, map, text, doFunction) { //Funktion för diverse kontrollknappar.
 
 		  // Set CSS for the control border
@@ -31,10 +33,10 @@
 		  var controlText = document.createElement('div');
 		  controlText.style.color = 'rgb(25,25,25)';
 		  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-		  controlText.style.fontSize = '16px';
+		  controlText.style.fontSize = '32px';
 		  controlText.style.lineHeight = '38px';
-		  controlText.style.paddingLeft = '5px';
-		  controlText.style.paddingRight = '5px';
+		  controlText.style.paddingLeft = '10px';
+		  controlText.style.paddingRight = '10px';
 		  controlText.innerHTML = text;
 		  controlUI.appendChild(controlText);
 
@@ -58,6 +60,14 @@
 		  		}
 		  	var map = new google.maps.Map(document.getElementById("map-canvas"),
 		    mapOptions);
+
+		 //    var fscreenDiv = document.createElement('div');
+			// var fscreen = new newControl(fscreenDiv, map,"FS", function() {
+			// 	document.body.requestFullscreen();
+			// });
+
+			// fscreenDiv.index = 1;
+			// map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(fscreenDiv);
 
 			var leftControlDiv = document.createElement('div');
 			var leftControl = new newControl(leftControlDiv, map,"<", function() {
