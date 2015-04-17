@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    	<meta charset="utf-8">
+    	<meta name="mobile-web-app-capable" content="yes"> <!-- Fixar fullscreen-->
+    	<link rel="icon" sizes="196x196" href="ikon.png"/>
+  		<meta name="theme-color" content="#FFBF53"> <!-- Fixar annan färg på status bar -->
+  		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    	<title>News Feeder</title>
+    	<link rel="stylesheet" href="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css">
+		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+		<script src="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.js"></script>
+    	<script>
+			google.load("feeds", "1");
+			mediaFeed = "";
+			thumbs = [];
+			function initialize() {
+			    var feed = new google.feeds.Feed('http://www.rendip.com/rss');
+			    feed.setResultFormat(google.feeds.Feed.MIXED_FORMAT);
+			    feed.setNumEntries(15); // Ändra om vi ska ha flera nyheter
+			    feed.load(function(result) {
+				    if (!result.error) {
+				      	for (var i = 0; i < result.feed.entries.length; i++) {
+					        var entry = result.feed.entries[i];
+					        var mediaEntries = entry.xmlNode.getElementsByTagNameNS('*','thumbnail');
+					        for (var j = 0; j < mediaEntries.length; j++) {
+					            var mediaEntry = mediaEntries[j];
+					            var mediaThumbnailUrl = mediaEntry.attributes.getNamedItem('url').value
+					            thumbs.push(mediaThumbnailUrl);
+					        }
+				      	}
+				      	mediaFeed=result.feed.entries;
+				      	//Att skapa divs för alla artiklar!
+						for (var media = 0; media < mediaFeed.length; media++) {
+							var newLi = document.createElement("li");
+							var link = document.createElement("a");
+							link.setAttribute("href", "#single");
+							link.setAttribute("id", media);
+							link.setAttribute("onclick", "generateNews("+media+")");
+							link.setAttribute("data-transition", "slide");
+							link.innerHTML = mediaFeed[media].title;
+							newLi.appendChild(link);
+							$("#catList").append(newLi).listview('refresh'); //Man måste uppdatera listan varje gång man lägger till element typ. Eller en gång efter.
+						}
+				    }
+			  	});
+			}
+			function generateNews (index) {
+				var article = mediaFeed[index];
+				var thumburl = thumbs[index];
+				var thumb = document.createElement("img");
+				thumb.setAttribute("src",thumburl);
+				thumb.setAttribute("id","thumbnail");
+				$("#singleArticle").append(thumb);
+				var title = document.createElement("p");
+				title.innerHTML = article.title;
+				title.setAttribute("id","articleTitle");
+				$("#singleArticle").append(title);
+				//console.log(thumb);//Skrev ut massa divar med cool skit.
+			}
+			function clearNews () {
+				$("#thumbnail").remove();
+				$("#articleTitle").remove();
+			}
+			google.setOnLoadCallback(initialize);
+
+		</script>
+	</head>
+	<body>
+		<div data-role="page" id="news">
+			<div data-role="header" data-id="persistent" data-position="fixed">
+				<h1>News Flash</h1>
+				<div data-role="navbar">
+					<ul> <!-- For-loop som lägger till ett li-element för varje kategori? Med en pil på den längst till höger för fler kategorier -->
+						<li><a href="#news">Home</a></li>
+						<li><a href="#news">Page Two</a></li>
+						<li><a href="#news">Search</a></li>
+					</ul>
+				</div>
+			</div>
+			<div data-role="main" class="ui-content">
+				<p>These are your news</p>
+			</div>
+				<ul id="catList" data-role="listview">
+				</ul>
+			<div data-role="footer" data-id="persistent" data-position="fixed">
+				<h1>Where the Action Is</h1>
+			</div>
+		</div>
+		<div data-role="page" id="single">
+			<div data-role="header" data-id="persistent" data-position="fixed">
+				<h1>News Flash</h1>
+				<div data-role="navbar">
+					<ul> <!-- For-loop som lägger till ett li-element för varje kategori? Med en pil på den längst till höger för fler kategorier -->
+						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Home</a></li>
+						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Page Two</a></li>
+						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Search</a></li>
+					</ul>
+				</div>
+			</div>
+			<div id="singleArticle" data-role="main" class="ui-content">
+				<!-- <p>Här är ditt liv</p> -->
+			</div>
+			<div data-role="footer" data-id="persistent" data-position="fixed">
+				<h1><a onclick="clearNews()" href="#news" data-direction="reverse" data-transition="slide">Back to news</a></h1>
+			</div>
+		</div>
+	</body>
+</html>

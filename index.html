@@ -1,42 +1,191 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style type="text/css">
-      html, body, #map-canvas { height: 90%; margin: 0; padding: 0;}
-    </style>
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js">
-    </script>
-    <script type="text/javascript">
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    	<meta charset="utf-8">
+    	<meta name="mobile-web-app-capable" content="yes"> <!-- Fixar fullscreen-->
+    	<link rel="icon" sizes="196x196" href="ikon.png"/>
+  		<meta name="theme-color" content="#FFBF53"> <!-- Fixar annan färg på status bar -->
+    	<!-- <link rel="apple-touch-startup-image" href="http://s649.photobucket.com/user/santod_photos/media/Androidonapple.jpg.html?t=1259524013" sizes="480x800" /> -->
+    	<title>Map-app!</title>
+    	<!-- <link rel="icon" sizes="192x192" href="ikon.png">  vilken ikon som är desktopikon när man laddar ned sidan som app -->
+    	<style type="text/css">
+      		html, body, #map-canvas { height: 95%; margin: 0; padding: 0;}
+    	</style>
+    	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+    	<script>
 
-      zoomlevel = 20;
-      latitud = 59.329323;
-      lngcurr = 18.068581
-      function initialize() {
-        var mapOptions = {
-          center: { lat: latitud , lng: lngcurr},
-          zoom: zoomlevel,
-          mapTypeId: google.maps.MapTypeId.HYBRID,
-          heading: 90,
-          tilt: 45,
-          disableDefaultUI: true
+		function newControl(controlDiv, map, text, doFunction) { //Funktion för diverse kontrollknappar.
 
-        };
-        var map = new google.maps.Map(document.getElementById('map-canvas'),
-            mapOptions);
-      }
-      
+		  // Set CSS for the control border
+		  var controlUI = document.createElement('div');
+		  controlUI.style.backgroundColor = '#FFBF53';
+		  controlUI.style.border = '2px solid #DFBF53';
+		  controlUI.style.borderRadius = '3px';
+		  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+		  controlUI.style.cursor = 'pointer';
+		  controlUI.style.marginBottom = '22px';
+		  controlUI.style.textAlign = 'center';
+		  controlUI.title = 'Click to recenter the map';
+		  controlDiv.appendChild(controlUI);
 
-      google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
-  </head>
-  <body>
-<div id="map-canvas"></div>
+		  // Set CSS for the control interior
+		  var controlText = document.createElement('div');
+		  controlText.style.color = 'rgb(25,25,25)';
+		  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+		  controlText.style.fontSize = '32px';
+		  controlText.style.lineHeight = '38px';
+		  controlText.style.paddingLeft = '10px';
+		  controlText.style.paddingRight = '10px';
+		  controlText.innerHTML = text;
+		  controlUI.appendChild(controlText);
 
-<button onclick="setZoom(1)">+</button>
-<button onclick="setZoom(-1)">-</button>
+		  // Setup the click event listeners: simply set the map to
+		  // Chicago
+		  google.maps.event.addDomListener(controlUI, 'click', doFunction);
+
+		}
+		function getCoord(position) { //Callback-funktion som hanterar
+			var usrLat = position.coords.latitude; //Fullösning att göra dessa publika?
+			var usrLng = position.coords.longitude;
+			var marker = new google.maps.Marker({
+				map:map,
+				draggable: true,
+				animation: google.maps.Animation.DROP,
+				position: {lat: usrLat, lng: usrLng},
+				title: "HEJEHEJEHE"
+			})
+			var infowindow = new google.maps.InfoWindow({
+			      content: document.getElementById("markerText").value
+			  });
+			google.maps.event.addListener(marker, 'click', function() {
+			    infowindow.open(map,marker);
+			  });			
+		}
+
+		function getLocation() {
+		    if (navigator.geolocation) {
+		        navigator.geolocation.getCurrentPosition(getCoord);
+		    } else { 
+		        x.innerHTML = "Geolocation is not supported by this browser.";
+		    }
+		}
+		function markFavorite(map) {
+			if (document.getElementById("markerText").value != "") {
+				getLocation();
+			}
+			else {
+				alert("Please name your favorite spot!");
+			}
+		}		
+    	function initialize() {
+		  	var mapOptions = {
+			    zoom: 16,
+			    center: new google.maps.LatLng(59.347184, 18.072588),
+			    //disableDefaultUI: true,
+				panControl: false,
+				zoomControl: false,
+				mapTypeControl: false,
+				scaleControl: false,
+				streetViewControl: false,
+				overviewMapControl: false,
+				draggable: false,
+				disableDoubleClickZoom: true
+		  		}
+		  	map = new google.maps.Map(document.getElementById("map-canvas"),
+		    mapOptions); //fullösning att göra denna publik?
 
 
-  </body>
+			var leftControlDiv = document.createElement('div');
+			var leftControl = new newControl(leftControlDiv, map,"<", function() {
+			map.panBy(-200,0)
+			});
+
+			leftControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.LEFT_CENTER].push(leftControlDiv);
+
+			var rightControlDiv = document.createElement('div');
+			var rightControl = new newControl(rightControlDiv, map,">", function() {
+			map.panBy(200,0)
+			});
+
+			rightControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(rightControlDiv);
+
+			var topControlDiv = document.createElement('div');
+			var topControl = new newControl(topControlDiv, map,"˄", function() {
+			map.panBy(0,-200)
+			});
+
+			topControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_CENTER].push(topControlDiv);
+
+			var bottomControlDiv = document.createElement('div');
+			var bottomControl = new newControl(bottomControlDiv, map,"˅", function() {
+			map.panBy(0,200)
+			});
+
+			bottomControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(bottomControlDiv);
+
+			var topLeftControlDiv = document.createElement('div');
+			var topLeftControl = new newControl(topLeftControlDiv, map,"+", function() {
+				map.setZoom(map.getZoom()+1)
+			});
+
+			topLeftControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_LEFT].push(topLeftControlDiv);
+
+			var leftTopControlDiv = document.createElement('div');
+			var leftTopControl = new newControl(leftTopControlDiv, map,"-", function() {
+				map.setZoom(map.getZoom()-1)
+			});
+
+			leftTopControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.LEFT_TOP].push(leftTopControlDiv);
+
+			var topRightControlDiv = document.createElement('div');
+			var topRightControl = new newControl(topRightControlDiv, map,"Move", function() {
+				if (map.getMapTypeId() === "satellite") {
+					map.setMapTypeId(google.maps.MapTypeId.ROADMAP)
+					map.setZoom(15);
+					map.setTilt(0);
+				}
+				else {
+					map.setCenter({lat: 59.334343, lng: 18.063741});
+					map.setZoom(18);
+					map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+					map.setTilt(45);
+				}
+			});
+
+			topRightControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(topRightControlDiv);
+
+			var marker = new google.maps.Marker({
+				map:map,
+				draggable: true,
+				animation: google.maps.Animation.DROP,
+				position: {lat: 59.347184, lng: 18.072588}
+			})
+			var fixedMarker = new google.maps.Marker({
+				map:map,
+				draggable: false,
+				position: {lat: 59.348955, lng: 18.074346}
+			})
+			//Bounce en gång när man klickar på marker
+			google.maps.event.addListener(marker, 'click', function() {
+				marker.setAnimation(google.maps.Animation.BOUNCE);
+				setTimeout(function(){ marker.setAnimation(null); }, 700);
+			})
+			}
+			google.maps.event.addDomListener(window, 'load', initialize);
+			//getLocation();
+    	</script>
+	</head>
+	<body>
+		<input id="markerText" type="text" placeholder="Name of current spot" style="font-size:22pt"/>
+		<button onclick="markFavorite(map)" style="font-size:18pt; width:100%">Mark current spot as favorite</button>
+		<div id="map-canvas"></div>
+	</body>
 </html>

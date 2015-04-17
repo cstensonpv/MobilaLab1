@@ -55,6 +55,8 @@
 				position: {lat: usrLat, lng: usrLng},
 				title: "HEJEHEJEHE"
 			})
+			setCookie("markers",getCookie("markers")+","+usrLat +","+usrLng+","+document.getElementById("markerText").value,5);//vart hittar jag titeln?
+			//console.log(document.cookie);
 			var infowindow = new google.maps.InfoWindow({
 			      content: document.getElementById("markerText").value
 			  });
@@ -79,9 +81,28 @@
 			}
 		}		
     	function initialize() {
+    		//Check if cookie exists
+    		console.log(document.cookie);
+    		
+
+    		if(getCookie("lat")!=""){
+    			var lat = Number(getCookie("lat"));
+    			var lng = Number(getCookie("lng"));
+    			var currZoom = Number(getCookie("zoom"));
+    		}else{
+    			var lat = 59.347184;
+    			var lng = 18.072588;
+    			var currZoom = 16;
+    		}
+
+    		
+
+
+
+
 		  	var mapOptions = {
-			    zoom: 16,
-			    center: new google.maps.LatLng(59.347184, 18.072588),
+			    zoom: currZoom,
+			    center: new google.maps.LatLng(lat, lng),
 			    //disableDefaultUI: true,
 				panControl: false,
 				zoomControl: false,
@@ -98,7 +119,8 @@
 
 			var leftControlDiv = document.createElement('div');
 			var leftControl = new newControl(leftControlDiv, map,"<", function() {
-			map.panBy(-200,0)
+				map.panBy(-200,0);
+				saveCookies();
 			});
 
 			leftControlDiv.index = 1;
@@ -106,7 +128,8 @@
 
 			var rightControlDiv = document.createElement('div');
 			var rightControl = new newControl(rightControlDiv, map,">", function() {
-			map.panBy(200,0)
+				map.panBy(200,0)
+				saveCookies();
 			});
 
 			rightControlDiv.index = 1;
@@ -114,7 +137,8 @@
 
 			var topControlDiv = document.createElement('div');
 			var topControl = new newControl(topControlDiv, map,"˄", function() {
-			map.panBy(0,-200)
+				map.panBy(0,-200);
+				saveCookies();
 			});
 
 			topControlDiv.index = 1;
@@ -122,7 +146,8 @@
 
 			var bottomControlDiv = document.createElement('div');
 			var bottomControl = new newControl(bottomControlDiv, map,"˅", function() {
-			map.panBy(0,200)
+				map.panBy(0,200);
+				saveCookies();
 			});
 
 			bottomControlDiv.index = 1;
@@ -130,7 +155,8 @@
 
 			var topLeftControlDiv = document.createElement('div');
 			var topLeftControl = new newControl(topLeftControlDiv, map,"+", function() {
-				map.setZoom(map.getZoom()+1)
+				map.setZoom(map.getZoom()+1);
+				saveCookies();
 			});
 
 			topLeftControlDiv.index = 1;
@@ -138,7 +164,8 @@
 
 			var leftTopControlDiv = document.createElement('div');
 			var leftTopControl = new newControl(leftTopControlDiv, map,"-", function() {
-				map.setZoom(map.getZoom()-1)
+				map.setZoom(map.getZoom()-1);
+				saveCookies();
 			});
 
 			leftTopControlDiv.index = 1;
@@ -150,10 +177,18 @@
 				map.setZoom(18);
 				map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
 				map.setTilt(45);
+				saveCookies();
 			});
 
 			topRightControlDiv.index = 1;
 			map.controls[google.maps.ControlPosition.TOP_RIGHT].push(topRightControlDiv);
+			var resetCookieControlDiv = document.createElement('div');
+			var resetCookieControl = new newControl(resetCookieControlDiv, map,"delete Cookies", function() {
+				resetCookies();
+			});
+
+			resetCookieControlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(resetCookieControlDiv);
 
 			var marker = new google.maps.Marker({
 				map:map,
@@ -170,10 +205,71 @@
 			google.maps.event.addListener(marker, 'click', function() {
 				marker.setAnimation(google.maps.Animation.BOUNCE);
 				setTimeout(function(){ marker.setAnimation(null); }, 700);
-			})
-			}
-			google.maps.event.addDomListener(window, 'load', initialize);
-			//getLocation();
+			});
+
+			if(getCookie("markers")!=""){
+    			var markers = getCookie("markers");
+    			markers = markers.split(",");
+    			console.log(markers[0]);
+    			for(var i= 1; i<markers.length-1;i+=3){
+    				console.log(markers[i]+":"+markers[i+1]+":"+markers[i+2]);
+    				var marker = new google.maps.Marker({
+						map:map,
+						draggable: true,
+						animation: google.maps.Animation.DROP,
+						position: {lat: Number(markers[i]), lng: Number(markers[i+1])},
+					})
+					var infowindow = new google.maps.InfoWindow({
+					      content: markers[i+2]
+					  });
+					google.maps.event.addListener(marker, 'click', function() {
+					    infowindow.open(map,marker);
+					  });
+    			}
+
+
+    		}
+		}
+		google.maps.event.addDomListener(window, 'load', initialize);
+
+		function saveCookies(){
+			console.log("sätter kakorna");
+			var latlng = map.getCenter();
+			var lat = latlng.k;
+			setCookie("lat",lat,5);
+			var lng = latlng.D;
+			setCookie("lng",lng,5);
+			var currZoom = map.getZoom();
+			setCookie("zoom",currZoom,5);
+
+			console.log(document.cookie);				
+		}
+		function resetCookies(){
+			console.log("raderar kakorna");
+			setCookie("lat","",-5);
+			setCookie("lng","",-5);
+			setCookie("zoom","",-5);
+			setCookie("markers","",-5);
+
+			console.log(document.cookie);				
+		}
+		function setCookie(key, value, days) {
+		    var d = new Date();
+		    d.setTime(d.getTime() + (days*24*60*60*1000));
+		    var expires = "expires="+d.toUTCString();
+		    document.cookie = key + "=" + value + "; " + expires;
+		}
+		function getCookie(key) {
+		    var name =(key) + "=";
+		    var ca = document.cookie.split(';');
+		    for(var i=0; i<ca.length; i++) {
+		        var c = ca[i];
+		        while (c.charAt(0)==' ') c = c.substring(1);
+		        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+		    }
+		    return "";
+		} 
+						//getLocation();
     	</script>
 	</head>
 	<body>
