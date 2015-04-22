@@ -15,10 +15,14 @@
 			google.load("feeds", "1");
 			mediaFeed = "";
 			thumbs = [];
+			categories = [];
+			filterCategories= [];
+
+
 			function initialize() {
 			    var feed = new google.feeds.Feed('http://www.rendip.com/rss');
 			    feed.setResultFormat(google.feeds.Feed.MIXED_FORMAT);
-			    feed.setNumEntries(15); // Ändra om vi ska ha flera nyheter
+			    feed.setNumEntries(40); // Ändra om vi ska ha flera nyheter
 			    feed.load(function(result) {
 				    if (!result.error) {
 				      	for (var i = 0; i < result.feed.entries.length; i++) {
@@ -32,21 +36,76 @@
 				      	}
 				      	mediaFeed=result.feed.entries;
 				      	//Att skapa divs för alla artiklar!
-						for (var media = 0; media < mediaFeed.length; media++) {
-							var newLi = document.createElement("li");
-							var link = document.createElement("a");
-							link.setAttribute("href", "#single");
-							link.setAttribute("id", media);
-							link.setAttribute("onclick", "generateNews("+media+")");
-							link.setAttribute("data-transition", "slide");
-							link.innerHTML = mediaFeed[media].title;
-							newLi.appendChild(link);
-							$("#catList").append(newLi).listview('refresh'); //Man måste uppdatera listan varje gång man lägger till element typ. Eller en gång efter.
-						}
+						readInNews("initialize","catList");
+						generateCategories();
+
+						
 				    }
 			  	});
 			}
+			function generateCategories(){
+				for(var category in categories){
+					var newInput = document.createElement("input");
+					newInput.setAttribute("id", categories[category]);
+					newInput.setAttribute("type", "checkbox");
+					newInput.setAttribute("value", categories[category]);
+					var newLabel = document.createElement("label");
+					newLabel.setAttribute("for", categories[category]);
+					newLabel.setAttribute("type", "checkbox");
+					var text = document.createTextNode(categories[category]);
+					newLabel.appendChild(text);
+					$("#categoriesOpt").append(newInput);
+					$("#categoriesOpt").append(newLabel);
+				}
+				$("input").click(function(){
+					resultCB();					
+				});
+			}
+			
+			function readInNews(filter,id){
+				
+				$("#"+id).empty().append().listview('refresh');
+				console.log("readInnews :")
+				var noFilter = false;
+				if(filter==="initialize"){
+					noFilter = true;
+					console.log("NOFILTER!");
+				}
+				for (var media = 0; media < mediaFeed.length; media++) {
+					console.log((noFilter || inFilter(mediaFeed[media])));
+					if(noFilter || inFilter(mediaFeed[media])){
+						var newLi = document.createElement("li");
+						var link = document.createElement("a");
+						link.setAttribute("href", "#single");
+						link.setAttribute("id", media);
+						link.setAttribute("onclick", "generateNews("+media+")");
+						link.setAttribute("data-transition", "slide");
+						link.innerHTML = mediaFeed[media].title;
+						newLi.appendChild(link);
+						$("#"+id).append(newLi).listview('refresh'); //Man måste uppdatera listan varje gång man lägger till element typ. Eller en gång efter.
+
+						for(var i=0;i < mediaFeed[media].categories.length; i++){
+							//console.log($.inArray(mediaFeed[media].categories[i], categories));
+							if($.inArray(mediaFeed[media].categories[i], categories) === -1){
+								//console.log(mediaFeed[media].categories[i]);
+								categories.push(mediaFeed[media].categories[i]);
+							}
+						}
+					}
+				}
+			}
+			function inFilter(article){
+				for(var i=0;i < article.categories.length; i++){
+					if($.inArray( article.categories[i] , filterCategories ) != -1){
+						//console.log("true "+ article.title );
+						return true;
+					}
+				}
+				//console.log("false "+ article.title);
+				return false;
+			}
 			function generateNews (index) {
+				//Genereates the single news screen.
 				var article = mediaFeed[index];
 				var thumburl = thumbs[index];
 				var thumb = document.createElement("img");
@@ -63,6 +122,19 @@
 				$("#thumbnail").remove();
 				$("#articleTitle").remove();
 			}
+
+			function resultCB(){
+				filterCategories = [];
+				$('input:checked').each(function() {
+			    	filterCategories.push($(this).attr('id'));
+				});
+				console.log(filterCategories);
+				readInNews("","filteredList");
+			};
+			
+			
+			
+
 			google.setOnLoadCallback(initialize);
 
 		</script>
@@ -73,9 +145,8 @@
 				<h1>News Flash</h1>
 				<div data-role="navbar">
 					<ul> <!-- For-loop som lägger till ett li-element för varje kategori? Med en pil på den längst till höger för fler kategorier -->
-						<li><a href="#news">Home</a></li>
-						<li><a href="#news">Page Two</a></li>
-						<li><a href="#news">Search</a></li>
+						<li><a href="#news">Recent</a></li>
+						<li><a href="#categories">Categories</a></li><!-- kolla vilken som är aktiv-->	
 					</ul>
 				</div>
 			</div>
@@ -95,7 +166,6 @@
 					<ul> <!-- For-loop som lägger till ett li-element för varje kategori? Med en pil på den längst till höger för fler kategorier -->
 						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Home</a></li>
 						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Page Two</a></li>
-						<li><a onclick="clearNews()"href="#news" data-direction="reverse" data-transition="slide">Search</a></li>
 					</ul>
 				</div>
 			</div>
@@ -104,6 +174,34 @@
 			</div>
 			<div data-role="footer" data-id="persistent" data-position="fixed">
 				<h1><a onclick="clearNews()" href="#news" data-direction="reverse" data-transition="slide">Back to news</a></h1>
+			</div>
+		</div>
+		<div data-role="page" id="categories">
+			<div data-role="header" data-id="persistent" data-position="fixed">
+				<h1>News Flash</h1>
+				<div data-role="navbar">
+					<ul> <!-- For-loop som lägger till ett li-element för varje kategori? Med en pil på den längst till höger för fler kategorier -->
+						<li><a href="#news">Recent</a></li>
+						<li><a href="#categories">Categories</a></li>
+					</ul>
+				</div>
+			</div>
+			<div data-role="main" class="ui-content">
+				 <a href="#popup" data-rel="popup" class="ui-btn ui-btn-inline ui-corner-all" id="catButton">Categories</a>
+				 <span id="placeholderArrow"></span>
+    
+			    <div data-role="popup" id="popup" data-position-to="#placeholderArrow" data-arrow="l">
+			    	<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
+				    <form>
+					    <fieldset data-role="controlgroup" id="categoriesOpt" >
+					    </fieldset>				
+					</form>
+				</div>
+			
+				<ul id="filteredList" data-role="listview">
+				</ul>
+			<div data-role="footer" data-id="persistent" data-position="fixed">
+				<h1>Where the Action Is</h1>
 			</div>
 		</div>
 	</body>
